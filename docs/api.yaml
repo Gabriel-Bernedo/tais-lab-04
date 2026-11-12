@@ -1,0 +1,158 @@
+openapi: 3.1.0
+info:
+  title: API de Donaciones Seguras - Fundación AQP-SOLIDARIA
+  description: API serverless con modelo de seguridad Zero Trust (NIST SP 800-207) para el curso TAIS - UNSA 2026.
+  version: 1.0.0
+servers:
+  - url: https://o2ngnz0ma9.execute-api.us-east-2.amazonaws.com/academic
+    description: Stage Académico (AWS us-east-2)
+
+paths:
+  /v1/projects:
+    get:
+      summary: Listar proyectos públicos
+      description: Retorna únicamente proyectos en estado PUBLICADO.
+      responses:
+        '200':
+          description: Lista de proyectos sociales publicados
+    post:
+      summary: Crear un nuevo proyecto
+      description: Requiere rol GESTOR y scope api/projects.write. Inicia en estado BORRADOR.
+      security:
+        - CognitoJWT: ['api/projects.write']
+      responses:
+        '201':
+          description: Proyecto creado exitosamente
+        '400':
+          description: Datos inválidos
+        '401':
+          description: No autenticado
+        '403':
+          description: No autorizado (no es GESTOR)
+
+  /v1/projects/{projectId}:
+    get:
+      summary: Obtener detalle de proyecto
+      description: Retorna el proyecto si está PUBLICADO; caso contrario devuelve 404 sin filtrar datos.
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalle del proyecto
+        '404':
+          description: Proyecto no encontrado o no publicado
+
+  /v1/projects/{projectId}/publish:
+    patch:
+      summary: Publicar un proyecto
+      description: Cambia el estado de BORRADOR a PUBLICADO. Requiere rol GESTOR.
+      security:
+        - CognitoJWT: ['api/projects.write']
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Proyecto publicado exitosamente
+        '409':
+          description: Conflicto (ya publicado o inexistente)
+
+  /v1/donations:
+    post:
+      summary: Registrar intención de donación
+      description: Requiere rol DONANTE, scope api/donations.write y cabecera Idempotency-Key (UUID).
+      security:
+        - CognitoJWT: ['api/donations.write']
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [projectId, amountCents]
+              properties:
+                projectId:
+                  type: string
+                amountCents:
+                  type: integer
+                  minimum: 100
+                  maximum: 100000
+      responses:
+        '201':
+          description: Intención de donación registrada (PENDIENTE_SIMULACION)
+        '400':
+          description: Monto inválido o ausencia de cabecera Idempotency-Key
+        '409':
+          description: Proyecto no publicado o Idempotency-Key reutilizada con payload distinto
+
+  /v1/donations/{donationId}/simulate:
+    post:
+      summary: Simular confirmación o rechazo de donación (Stage Académico)
+      description: Solo disponible en stage academic. Exige verificación de ownership del donante autenticado.
+      security:
+        - CognitoJWT: ['api/donations.write']
+      parameters:
+        - name: donationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  enum: [CONFIRMAR, RECHAZAR]
+      responses:
+        '200':
+          description: Simulación procesada y monto acumulado actualizado atómicamente
+        '403':
+          description: BOLA (la donación pertenece a otro donante)
+        '409':
+          description: Transición inválida (ya no está pendiente)
+
+  /v1/donations/me:
+    get:
+      summary: Consultar historial propio de donaciones
+      description: Retorna exclusivamente las donaciones asociadas al claim sub del donante autenticado.
+      security:
+        - CognitoJWT: ['api/donations.read']
+      responses:
+        '200':
+          description: Historial de donaciones propias
+        '401':
+          description: No autenticado
+
+components:
+  securitySchemes:
+    CognitoJWT:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://aqp-solidaria-063659476602.auth.us-east-2.amazoncognito.com/oauth2/authorize
+          tokenUrl: https://aqp-solidaria-063659476602.auth.us-east-2.amazoncognito.com/oauth2/token
+          scopes:
+            openid: Identidad básica
+            email: Correo verificado
+            api/projects.write: Administración de proyectos
+            api/donations.read: Lectura de historial propio
+            api/donations.write: Creación y simulación de aportes

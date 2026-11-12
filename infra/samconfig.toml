@@ -1,0 +1,11 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "donations-platform-academic"
+s3_bucket = "tais-donations-deploy-063659476602"
+s3_prefix = "donations-platform-academic"
+region = "us-east-2"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Stage=\"academic\""
+image_repositories = []
