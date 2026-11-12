@@ -1,5 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { GetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, TransactWriteCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { randomUUID } from 'crypto';
 import { docClient, TABLES } from '../shared/dynamo.js';
 import { successResponse, errorResponse } from '../shared/response.js';
 import { getCallerContext, assertHasRole, AuthzError } from '../authz/index.js';
@@ -90,6 +91,32 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
 
     donation.status = newStatus;
     donation.updatedAt = now;
+
+    // Registro de auditoría CA-10.2
+    try {
+      await docClient.send(
+        new PutCommand({
+          TableName: TABLES.AUDIT,
+          Item: {
+            eventType: validated.action === 'CONFIRMAR' ? 'DONATION_CONFIRMED' : 'DONATION_REJECTED',
+            eventSk: `${now}#${randomUUID()}`,
+            timestamp: now,
+            requestId,
+            actorRef: caller.sub,
+            action: `SIMULATE_${validated.action}`,
+            resourceRef: donationId,
+            outcome: 'SUCCESS',
+            details: {
+              projectId: donation.projectId,
+              amountCents: donation.amountCents,
+              finalStatus: newStatus,
+            },
+          },
+        })
+      );
+    } catch (auditErr) {
+      console.warn('Advertencia: no se pudo escribir evento de auditoría', auditErr);
+    }
 
     return successResponse(donation);
   } catch (err: any) {

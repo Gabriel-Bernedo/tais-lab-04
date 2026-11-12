@@ -1,4 +1,4 @@
-import type { Project, Donation, CreateDonationInput, CreateProjectInput } from '../types';
+import type { Project, Donation, CreateDonationInput, CreateProjectInput, AuditEvent } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -215,6 +215,37 @@ export const apiService = {
     });
 
     if (!res.ok) throw new Error('Error al publicar el proyecto');
+    return res.json();
+  },
+
+  // Auditoría (Auditor autenticado - HU-10)
+  async getAuditEvents(token: string, eventType?: string): Promise<AuditEvent[]> {
+    if (!API_BASE_URL) {
+      return [
+        {
+          eventType: 'PROJECT_CREATED',
+          eventSk: `${new Date().toISOString()}#mock-1`,
+          timestamp: new Date().toISOString(),
+          requestId: 'mock-req-001',
+          actorRef: 'usr-gestor-456',
+          action: 'CREATE_PROJECT',
+          resourceRef: 'proj-003',
+          outcome: 'SUCCESS',
+        },
+      ];
+    }
+
+    const query = eventType && eventType !== 'ALL' ? `?eventType=${encodeURIComponent(eventType)}` : '';
+    const res = await fetch(`${API_BASE_URL}/v1/audit${query}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Error al obtener bitácora' }));
+      throw new Error(err.message || 'Error al obtener la bitácora de auditoría');
+    }
     return res.json();
   },
 };

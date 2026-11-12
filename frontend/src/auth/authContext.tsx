@@ -23,15 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const parseOidcUser = (oidcUser: OidcUser): AuthUser => {
     const profile = oidcUser.profile;
-    const raw = profile['cognito:groups'];
-    let rawGroups: string[] = [];
-
-    if (Array.isArray(raw)) {
-      rawGroups = raw.map((g) => String(g).replace(/[\[\]"]/g, '').trim());
-    } else if (typeof raw === 'string') {
-      rawGroups = raw.replace(/[\[\]"]/g, '').split(/[\s,]+/).map((g) => g.trim()).filter(Boolean);
-    }
-
+    const rawGroups = (profile['cognito:groups'] as string[]) || [];
     const roles: Role[] = rawGroups.filter((g): g is Role =>
       ['DONANTE', 'GESTOR', 'AUDITOR'].includes(g)
     );
@@ -73,16 +65,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = useCallback(async () => {
     if (userManager) {
       try {
+        await userManager.signoutRedirect();
+      } catch {
         await userManager.removeUser();
-      } catch (err) {
-        console.error('Error al remover usuario local:', err);
       }
-      sessionStorage.clear();
-      const domain = 'https://aqp-solidaria-063659476602.auth.us-east-2.amazoncognito.com';
-      const clientId = 'itg4bnk65ogv7is4krsdfgkf5';
-      const logoutUri = encodeURIComponent(window.location.origin);
-      window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${logoutUri}`;
-      return;
     }
     setUser(null);
     setMockRoleState(null);

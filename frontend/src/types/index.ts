@@ -47,3 +47,16 @@ export interface CreateProjectInput {
   goalAmountCents: number;
 }
 
+export interface AuditEvent {
+  eventType: string;
+  eventSk: string;
+  timestamp: string;
+  requestId: string;
+  actorRef: string;
+  action: string;
+  resourceRef: string;
+  outcome: string;
+  details?: Record<string, any>;
+}
+
+

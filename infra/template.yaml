@@ -388,6 +388,7 @@ Resources:
               Resource:
                 - !GetAtt DonationsTable.Arn
                 - !GetAtt IdempotencyTable.Arn
+                - !GetAtt AuditEventsTable.Arn
       Events:
         CreateDonation:
           Type: HttpApi
@@ -419,6 +420,11 @@ Resources:
                 - dynamodb:UpdateItem
               Resource:
                 - !GetAtt ProjectsTable.Arn
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+              Resource:
+                - !GetAtt AuditEventsTable.Arn
       Events:
         SimulateDonation:
           Type: HttpApi
@@ -454,6 +460,31 @@ Resources:
               Authorizer: CognitoJwtAuthorizer
               AuthorizationScopes:
                 - api/donations.read
+
+  AuditListFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../backend/
+      Handler: dist/audit/list.handler
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:Scan
+              Resource:
+                - !GetAtt AuditEventsTable.Arn
+      Events:
+        ListAudit:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /v1/audit
+            Method: GET
+            Auth:
+              Authorizer: CognitoJwtAuthorizer
+              AuthorizationScopes:
+                - api/audit.read
 
 Outputs:
   ApiEndpoint:

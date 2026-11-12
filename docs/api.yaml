@@ -142,6 +142,27 @@ paths:
         '401':
           description: No autenticado
 
+  /v1/audit:
+    get:
+      summary: Consultar bitácora de auditoría inmutable
+      description: Retorna eventos técnicos del sistema. Requiere rol AUDITOR con MFA verificado y scope api/audit.read (HU-10).
+      security:
+        - CognitoJWT: ['api/audit.read']
+      parameters:
+        - name: eventType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PROJECT_CREATED, PROJECT_PUBLISHED, DONATION_INTENT, DONATION_CONFIRMED, DONATION_REJECTED]
+      responses:
+        '200':
+          description: Lista de eventos de auditoría ordenados descendentemente
+        '401':
+          description: No autenticado
+        '403':
+          description: No autorizado (no pertenece al grupo AUDITOR)
+
 components:
   securitySchemes:
     CognitoJWT:
@@ -156,4 +177,5 @@ components:
             api/projects.write: Administración de proyectos
             api/donations.read: Lectura de historial propio
             api/donations.write: Creación y simulación de aportes
+            api/audit.read: Lectura de bitácora de auditoría (Auditor)
 

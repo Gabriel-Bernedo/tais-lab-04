@@ -8,6 +8,7 @@ import { CatalogPage } from './pages/CatalogPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { MyDonationsPage } from './pages/MyDonationsPage';
 import { GestorPage } from './pages/GestorPage';
+import { AuditPage } from './pages/AuditPage';
 import { CallbackPage } from './pages/CallbackPage';
 
 const queryClient = new QueryClient({
@@ -34,6 +35,7 @@ export const App: React.FC = () => {
                 <Route path="/projects/:projectId" element={<ProjectDetailPage />} />
                 <Route path="/my-donations" element={<MyDonationsPage />} />
                 <Route path="/manage/projects" element={<GestorPage />} />
+                <Route path="/audit" element={<AuditPage />} />
                 <Route path="/callback" element={<CallbackPage />} />
               </Routes>
             </main>

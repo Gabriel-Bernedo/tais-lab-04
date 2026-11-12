@@ -8,7 +8,9 @@ export const Navbar: React.FC = () => {
   const { user, login, logout, isMockMode, setMockRole } = useAuth();
   const location = useLocation();
 
+  const isDonor = user?.roles.includes('DONANTE');
   const isGestor = user?.roles.includes('GESTOR');
+  const isAuditor = user?.roles.includes('AUDITOR');
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
@@ -38,7 +40,7 @@ export const Navbar: React.FC = () => {
               Proyectos
             </Link>
 
-            {user && (
+            {isDonor && (
               <Link
                 to="/my-donations"
                 className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition ${
@@ -63,6 +65,20 @@ export const Navbar: React.FC = () => {
               >
                 <FolderPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Panel Gestor</span>
+              </Link>
+            )}
+
+            {isAuditor && (
+              <Link
+                to="/audit"
+                className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition ${
+                  location.pathname === '/audit'
+                    ? 'bg-indigo-100 text-indigo-900 font-bold'
+                    : 'bg-indigo-50 text-indigo-800 hover:bg-indigo-100'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Bitácora Auditoría</span>
               </Link>
             )}
           </nav>

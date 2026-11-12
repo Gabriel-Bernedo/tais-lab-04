@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { GetCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, TransactWriteCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { createHash, randomUUID } from 'crypto';
 import { docClient, TABLES } from '../shared/dynamo.js';
 import { successResponse, errorResponse } from '../shared/response.js';
@@ -119,6 +119,31 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
         ],
       })
     );
+
+    // Registro de auditoría CA-10.2
+    try {
+      await docClient.send(
+        new PutCommand({
+          TableName: TABLES.AUDIT,
+          Item: {
+            eventType: 'DONATION_INTENT',
+            eventSk: `${now}#${randomUUID()}`,
+            timestamp: now,
+            requestId,
+            actorRef: caller.sub,
+            action: 'CREATE_DONATION_INTENT',
+            resourceRef: donationId,
+            outcome: 'SUCCESS',
+            details: {
+              projectId: validated.projectId,
+              amountCents: validated.amountCents,
+            },
+          },
+        })
+      );
+    } catch (auditErr) {
+      console.warn('Advertencia: no se pudo escribir evento de auditoría', auditErr);
+    }
 
     return successResponse(newDonation, 201);
   } catch (err: any) {
