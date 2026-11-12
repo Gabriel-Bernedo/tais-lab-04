@@ -47,3 +47,4 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
     return errorResponse(500, 'INTERNAL_ERROR', 'Error al consultar bitácora de auditoría', requestId);
   }
 }
+
