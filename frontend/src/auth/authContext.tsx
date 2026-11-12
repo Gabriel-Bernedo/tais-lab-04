@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return {
       sub: profile.sub,
       email: (profile.email as string) || 'usuario@aqp-solidaria.org',
-      roles: roles.length > 0 ? roles : ['DONANTE'],
+      roles,
       accessToken: oidcUser.access_token,
     };
   };

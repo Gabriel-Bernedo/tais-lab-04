@@ -124,8 +124,10 @@ export const Navbar: React.FC = () => {
                   </div>
                   <div className="hidden lg:block text-left text-xs">
                     <p className="font-semibold text-slate-900 truncate max-w-[130px]">{user.email}</p>
-                    <span className="inline-block px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]">
-                      {user.roles.join(', ')}
+                    <span className={`inline-block px-1.5 py-0.2 rounded font-semibold text-[10px] ${
+                      user.roles.length > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {user.roles.length > 0 ? user.roles.join(', ') : 'SIN ROL ASIGNADO'}
                     </span>
                   </div>
                 </div>
