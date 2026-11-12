@@ -29,3 +29,4 @@
 | **5. Monitoreo de la postura de activos** | *Limitación declarada del Free Tier:* No se cuenta con ZTNA/Verified Access ni inspección de dispositivo. Mitigado con dependencias auditadas y MFA. |
 | **6. Autenticación y autorización estrictas** | Arquitectura desacoplada: API Gateway actúa como **PEP** (Policy Enforcement Point) y Lambda como **PDP** (Policy Decision Point). |
 | **7. Recolección continua de información** | Registro estructurado en JSON hacia CloudWatch Logs y auditoría de cambios con AWS CloudTrail. |
+

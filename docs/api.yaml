@@ -156,3 +156,4 @@ components:
             api/projects.write: Administración de proyectos
             api/donations.read: Lectura de historial propio
             api/donations.write: Creación y simulación de aportes
+

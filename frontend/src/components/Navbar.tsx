@@ -26,10 +26,10 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Enlaces de Navegación */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="flex items-center gap-1">
             <Link
               to="/"
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+              className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition ${
                 location.pathname === '/' 
                   ? 'bg-slate-100 text-slate-900 font-semibold' 
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -41,28 +41,28 @@ export const Navbar: React.FC = () => {
             {user && (
               <Link
                 to="/my-donations"
-                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition ${
+                className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition ${
                   location.pathname === '/my-donations'
                     ? 'bg-slate-100 text-slate-900 font-semibold'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                <History className="w-4 h-4" />
-                Mis Donaciones
+                <History className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Mis Donaciones</span>
               </Link>
             )}
 
             {isGestor && (
               <Link
                 to="/manage/projects"
-                className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition ${
+                className={`px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1 transition ${
                   location.pathname === '/manage/projects'
-                    ? 'bg-emerald-50 text-emerald-800 font-semibold'
-                    : 'text-emerald-700 hover:bg-emerald-50/70'
+                    ? 'bg-emerald-100 text-emerald-900 font-bold'
+                    : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
                 }`}
               >
-                <FolderPlus className="w-4 h-4" />
-                Panel Gestor
+                <FolderPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Panel Gestor</span>
               </Link>
             )}
           </nav>

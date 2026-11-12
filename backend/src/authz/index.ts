@@ -13,18 +13,14 @@ export function getCallerContext(event: APIGatewayProxyEventV2): CallerContext {
     throw new AuthzError(401, 'UNAUTHORIZED', 'Identidad no autenticada o token ausente');
   }
 
-  // cognito:groups puede venir como arreglo o cadena separada por espacios/comas
+  // cognito:groups puede venir como arreglo o cadena como "[GESTOR]" o "GESTOR"
   let groups: string[] = [];
   const rawGroups = claims['cognito:groups'];
   if (Array.isArray(rawGroups)) {
-    groups = rawGroups;
+    groups = rawGroups.map((g) => String(g).replace(/[\[\]"]/g, '').trim()).filter(Boolean);
   } else if (typeof rawGroups === 'string') {
-    try {
-      const parsed = JSON.parse(rawGroups);
-      groups = Array.isArray(parsed) ? parsed : [rawGroups];
-    } catch {
-      groups = rawGroups.split(/[\s,]+/);
-    }
+    const cleaned = rawGroups.replace(/[\[\]"]/g, '');
+    groups = cleaned.split(/[\s,]+/).map((g) => g.trim()).filter(Boolean);
   }
 
   return {

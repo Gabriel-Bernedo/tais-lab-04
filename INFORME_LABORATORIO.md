@@ -103,3 +103,4 @@ La solución adopta un patrón **Cloud-Native Serverless Modular**:
 * **Especificación OpenAPI 3.1:** [`docs/api.yaml`](./docs/api.yaml)
 * **Modelo de Amenazas STRIDE:** [`docs/threat-model.md`](./docs/threat-model.md)
 * **Declaración de Asistencia de IA:** [`AI_USAGE.md`](./AI_USAGE.md)
+

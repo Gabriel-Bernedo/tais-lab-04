@@ -203,8 +203,11 @@ Resources:
       CallbackURLs:
         - http://localhost:5173/callback
         - http://localhost:5173
+        - https://d4twnz6gxwdr2.cloudfront.net/callback
+        - https://d4twnz6gxwdr2.cloudfront.net
       LogoutURLs:
         - http://localhost:5173
+        - https://d4twnz6gxwdr2.cloudfront.net
       SupportedIdentityProviders:
         - COGNITO
       TokenValidityUnits:

@@ -21,3 +21,4 @@
 
 ## 2. Declaración de Integridad Académica
 El código generado y las configuraciones de infraestructura fueron supervisados, revisados y validados por el equipo. Todos los integrantes comprenden el modelo de arquitectura Zero Trust implementado y las decisiones de diseño expuestas para la sustentación del laboratorio.
+
